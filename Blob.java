@@ -1,50 +1,91 @@
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.math.BigInteger;
 import java.nio.file.Files;
-import java.nio.file.StandardCopyOption;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.MessageDigest;
-import java.util.HashMap;
-import java.util.Map;
+import java.security.NoSuchAlgorithmException;
 
 public class Blob {
-    private String sha1;
-    private String filePath;
+    private Path toTextFile;
+    private String fileName;
+    private String fileContents;
+    private String shaName;
 
-    public Blob(String filePath) {
-        this.filePath = filePath;
-        this.sha1 = generateSHA1();
-        writeInObjects();
+    public Blob(String nameOfFile) throws IOException {
+        toTextFile = Paths.get(nameOfFile);
+        fileName = nameOfFile;
+        fileContents = readText(nameOfFile);
+        shaName = doSha(fileContents);
     }
 
-    //copied from internet
-    private String generateSHA1() {
+    public String doSha(String input) {
         try {
+            // getInstance() method is called with algorithm SHA-1
             MessageDigest md = MessageDigest.getInstance("SHA-1");
-            byte[] fileBytes = Files.readAllBytes(new File(filePath).toPath());
-            md.update(fileBytes);
-            byte[] digest = md.digest();
-            StringBuilder sb = new StringBuilder();
-            for (byte b : digest) {
-                sb.append(String.format("%02x", b));
+
+            // digest() method is called
+            // to calculate message digest of the input string
+            // returned as array of byte
+            byte[] messageDigest = md.digest(input.getBytes());
+
+            // Convert byte array into signum representation
+            BigInteger no = new BigInteger(1, messageDigest);
+
+            // Convert message digest into hex value
+            String hashtext = no.toString(16);
+
+            // Add preceding 0s to make it 32 bit
+            while (hashtext.length() < 32) {
+                hashtext = "0" + hashtext;
             }
-            return sb.toString();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
 
-    private void writeInObjects() {
-        String path = "./objects/" + filePath;
-        try {
-            FileWriter fileWriter = new FileWriter(filePath);
-            fileWriter.write(sha1);
-            fileWriter.close();
-        } catch (IOException ex) {
-            System.out.println("didn't work");
+            // return the HashText
+            return hashtext;
+        }
+
+        // For specifying wrong message digest algorithms
+        catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
         }
     }
 
-    public String getSHA1() {
-        return sha1;
+    public String readText(String fileName) throws IOException {
+        String output = "";
+        BufferedReader reader = new BufferedReader(new FileReader(fileName));
+        while (reader.ready()) {
+            int letter = reader.read();
+            output += (char) letter;
+        }
+        reader.close();
+        return output;
+    }
+
+    public String getShaName() {
+        return shaName;
+    }
+
+    public byte[] makeBite(String fileName) throws IOException {
+        String inputString = readText(fileName);
+        byte[] byteArray = inputString.getBytes();
+
+        return byteArray;
+    }
+
+    public void makeBlob() throws IOException {
+        byte[] insideFile = makeBite(fileName);
+        String folderPath = "Objects";
+        Path toObjectsFolder = Paths.get(folderPath, doSha(fileName));
+        Files.write(toObjectsFolder, insideFile);
+    }
+
+    public Path getToTextFile() {
+        return toTextFile;
+    }
+
+    public Object getFileContents() {
+        return fileContents;
     }
 }
