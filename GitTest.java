@@ -31,25 +31,6 @@ public class GitTest {
     }
 
     @Test
-    public void testAdd() throws NoSuchAlgorithmException, IOException {
-        String fileName = "testGit.txt";
-        git.add(fileName);
-
-        BufferedReader br = new BufferedReader(new FileReader("Git"));
-        boolean found = false;
-        String line;
-        while ((line = br.readLine()) != null) {
-            String[] name = line.split("\\s+");
-            if (name[0].equals(fileName)) {
-                found = true;
-                break;
-            }
-        }
-        br.close();
-        assertTrue(found);
-    }
-
-    @Test
     public void testDelete() throws NoSuchAlgorithmException, IOException {
         String fileName = "testGit.txt";
         git.add(fileName);
@@ -67,5 +48,24 @@ public class GitTest {
         }
         br.close();
         assertFalse(found);
+    }
+
+    @Test
+    public void testAdd() throws NoSuchAlgorithmException, IOException {
+        String fileName = "testGit.txt";
+        git.add(fileName);
+
+        BufferedReader br = new BufferedReader(new FileReader("Git"));
+        boolean found = false;
+        String line;
+        while ((line = br.readLine()) != null) {
+            String[] name = line.split("\\s+");
+            if (name[0].equals(fileName)) {
+                found = true;
+                break;
+            }
+        }
+        br.close();
+        assertTrue(found);
     }
 }
