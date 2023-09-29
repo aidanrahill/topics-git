@@ -99,4 +99,36 @@ public class Tree {
             e.printStackTrace();
         }
     }
+
+    public String addDirectory(String directoryPath) throws IOException {
+        String sha1 = addADirectory(directoryPath);
+        BufferedWriter writer = new BufferedWriter(new FileWriter(directoryPath));
+        for (String string : entries) {
+            writer.write(string + "\n");
+        }
+        return sha1;
+    }
+
+    private String addADirectory(String directoryPath) throws IOException {
+        File directory = new File(directoryPath);
+        File[] files = directory.listFiles();
+        entries = new ArrayList<String>();
+        if (files.length == 0) {
+            return "";
+        }
+        for (File file : files) {
+            if (file.isDirectory()) {
+                Tree newTree = new Tree();
+                entries.add("tree : " + newTree.addADirectory(file.getAbsolutePath()) + " " + file.getPath());
+            } else {
+                Blob newBlob = new Blob("blob : " + file.getAbsolutePath() + " " + file.getPath());
+                entries.add(newBlob.getShaName());
+            }
+        }
+        String megaString = "";
+        for (String entry : entries) {
+            megaString += entry;
+        }
+        return calculateSHA1(megaString);
+    }
 }
