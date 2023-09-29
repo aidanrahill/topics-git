@@ -1,28 +1,17 @@
-// public class TreeTeseter {
-//     // public static void main(String[] args) {
-//     //     // Tree tree = new Tree();
-//     //     // tree.add("file1.txt");
-//     //     // tree.add("file2.txt");
-//     //     // tree.add("bd1ccec139dead5ee0d8c3a0499b42a7d43ac44b");
-//     //     // tree.printTree();
-
-//     //     // System.out.println("\nRemoving 'file1.txt' and 'bd1ccec139dead5ee0d8c3a0499b42a7d43ac44b':");
-//     //     // tree.remove("file1.txt");
-//     //     // tree.remove("bd1ccec139dead5ee0d8c3a0499b42a7d43ac44b");
-//     //     // tree.printTree();
-
-//     //     // System.out.println("\nGenerating Blob:");
-//     //     // tree.generateBlob();
-//     // }
-
-// }import static org.junit.Assert.*;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
 
 public class TreeTester {
     private Tree tree;
@@ -70,5 +59,29 @@ public class TreeTester {
         tree.delete("entry1");
         assertFalse(tree.entries.contains("entry1"));
         assertTrue(tree.entries.contains("entry2"));
+    }
+
+    @Test
+    public void testAddDirectoryBasic() throws IOException {
+        String testDirectory = "superMarioBrosWii";
+
+        assertTrue(tree.entries.contains("blob : file1.txt " + testDirectory + File.separator + "file1.txt"));
+        assertTrue(tree.entries.contains("blob : file2.txt " + testDirectory + File.separator + "file2.txt"));
+        assertTrue(tree.entries.contains("blob : file3.txt " + testDirectory + File.separator + "file3.txt"));
+    }
+
+    @Test
+    public void testAddDirectoryAdvanced() throws IOException {
+        String testDirectory = "superMarioBrosWiiU";
+        String innerFilePath = testDirectory + File.separator + "folder1" + File.separator + "innerFile.txt";
+
+        String sha1 = tree.addDirectory(testDirectory);
+
+        assertTrue(tree.entries.contains("blov : file1.txt " + testDirectory + File.separator + "file1.txt"));
+        assertTrue(tree.entries.contains("blob : file2.txt " + testDirectory + File.separator + "file2.txt"));
+        assertTrue(tree.entries.contains("blob : file3.txt " + testDirectory + File.separator + "file3.txt"));
+        assertTrue(tree.entries.contains("blob : " + innerFilePath + " " + innerFilePath));
+        assertTrue(tree.entries.contains("tree : " + sha1 + " " + testDirectory + File.separator + "folder1"));
+        assertTrue(tree.entries.contains("tree : " + sha1 + " " + testDirectory + File.separator + "folder2"));
     }
 }
